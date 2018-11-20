@@ -6,7 +6,7 @@ const s3 = new aws.S3()
 
 export default async function handler (event, context, callback) {
 
-  const BUCKET = process.env.BUCKET
+  // const BUCKET = process.env.BUCKET
 
   const queryStringParameters = event.queryStringParameters || {}
   const {
@@ -18,46 +18,30 @@ export default async function handler (event, context, callback) {
   const url = `https://www.aventrix.com/users/${userId}/charts`
   const filename = `${userId}.png`
 
-  let buffer;
+  let data;
 
   log('Processing screenshot capture for', url)
 
   const startTime = Date.now();
 
   try {
-    buffer = await screenshot(url)
+    data = await screenshot(url)
   } catch (error) {
     console.error('Error capturing screenshot for', url, error)
     return callback(error)
   }
 
-  // upload image to S3
-  console.log(`Uploading screenshot 's3://${BUCKET}/${filename}'`)
-  const s3Params = {
-      Bucket: BUCKET,
-      Key: filename,
-      ContentType: "image/png",
-      Body: buffer
-  };
-
-  await s3.putObject(s3Params, (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("uploading succeeded");
-    }
-  }).promise();
-  console.log("uploading completed");
-
   log(`Chromium took ${Date.now() - startTime}ms to load URL and capture screenshot.`)
 
   // respond with a redirect to the new S3 image
   const response = {
-    statusCode: 307,
+    statusCode: 200,
+    body: data,
+    isBase64Encoded: true,
     headers: {
-      Location: `http://${BUCKET}.s3-website-us-east-1.amazonaws.com/${filename}`,
-    }
-  }
+      'Content-Type': 'image/png',
+    },
+  };
 
-  return callback(null, response)
+  return callback(null, response);
 }

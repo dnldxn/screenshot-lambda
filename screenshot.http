@@ -1,11 +1,14 @@
-@host = https://vtthomkh1b.execute-api.us-east-1.amazonaws.com/dev
+@host = https://d1yv71ok6xxy0z.cloudfront.net/dev
+
 
 ### GET Chrome version
 GET {{host}}/version-info
 
 ### GET screenshot
-GET {{host}}/screenshot?user=M52Dd2mSHE1
+GET {{host}}/screenshot?resource=M52Dd2mSHE1.png
 
+### GET screenshot 2
+GET {{host}}/screenshot?resource=7lqbiwzn76F.png
 
 ### GET image https://s3.us-east-1.amazonaws.com/aventrix-screenshot/M52Dd2mSHE1.png
 # https://aventrix-screenshot.s3-website-us-east-1.amazonaws.com/M52Dd2mSHE1.png

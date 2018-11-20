@@ -30,7 +30,7 @@
     "babel-preset-env": "1.6.1",
     "babel-preset-stage-3": "6.24.1",
     "babel-register": "6.26.0",
-    "serverless": "^1.32.0",
+    "serverless": "1.33.2",
     "serverless-plugin-chrome": "1.0.0-55",
     "serverless-webpack": "4.0.0",
     "webpack": "3.8.1"

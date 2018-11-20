@@ -7,17 +7,17 @@ provider:
   region: us-east-1
   environment:
     # This will define an environment variable BUCKET with the name of the bucket created in the resources section
-    BUCKET: 
-      Ref: ScreenshotsBucket
+    # BUCKET: 
+    #   Ref: ScreenshotsBucket
     PAGE_LOAD_TIMEOUT: 20000
     LOGGING: true
   # This describes the permissions common to all the lambdas
-  iamRoleStatements:
-    - Effect: "Allow"
-      Action:
-        - "s3:*"
-      Resource:
-          - "*"
+  # iamRoleStatements:
+  #   - Effect: "Allow"
+  #     Action:
+  #       - "s3:*"
+  #     Resource:
+  #         - "*"
 
 plugins:
   - serverless-plugin-chrome
@@ -58,48 +58,28 @@ resources:
         BinaryMediaTypes:
           - "*/*"
 
-    ScreenshotsBucket:
-      Type: AWS::S3::Bucket
+    CloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
       Properties:
-        BucketName: ${self:custom.s3Bucket}
-        AccessControl: PublicRead
-        WebsiteConfiguration:
-          IndexDocument: index.html
-          ErrorDocument: error.html
-          RoutingRules:
-            - RoutingRuleCondition:
-                HttpErrorCodeReturnedEquals: "404"
-              RedirectRule:
-                Protocol: https
-                ReplaceKeyPrefixWith: "dev/screenshot?resource="
-                HttpRedirectCode: "307"
-                HostName:
-                  Fn::Join:
-                    - ""
-                    - - Ref: ApiGatewayRestApi
-                      - ".execute-api.us-east-1.amazonaws.com"
-    ## Specifying the policies to make sure all files inside the Bucket are avaialble to CloudFront
-    ScreenshotsBucketPolicy:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket:
-          Ref: ScreenshotsBucket
-        PolicyDocument:
-          Statement:
-            - Sid: PublicReadGetObject
-              Effect: Allow
-              Principal: "*"
-              Action:
-              - s3:GetObject
-              Resource: arn:aws:s3:::${self:custom.s3Bucket}/*
-
-
-    # Enable X-Ray tracing on Lambda functions
-    # ScreenshotLambdaFunction:
-    #   Properties:
-    #     TracingConfig:
-    #       Mode: Active
-    # PdfLambdaFunction:
-    #   Properties:
-    #     TracingConfig:
-    #       Mode: Active
+        DistributionConfig:
+          Comment: Screenshot CloudFront Distribution
+          Enabled: true
+          PriceClass: PriceClass_100
+          DefaultCacheBehavior:
+            AllowedMethods:
+            - HEAD
+            - GET
+            TargetOriginId: ScreenshotLambdaOrigin
+            ViewerProtocolPolicy: 'redirect-to-https'
+            DefaultTTL: 30
+            ForwardedValues:
+              QueryString: true
+          Origins:
+          - Id: ScreenshotLambdaOrigin
+            DomainName:
+              Fn::Join:
+                - ""
+                - - Ref: ApiGatewayRestApi
+                - ".execute-api.us-east-1.amazonaws.com"
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only

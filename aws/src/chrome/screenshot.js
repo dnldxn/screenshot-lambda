@@ -67,8 +67,8 @@ export default async function captureScreenshotOfUrl (url) {
 
     const screenshot = await Page.captureScreenshot({ format: 'png' })
 
-    // result = screenshot.data
-    result = new Buffer(screenshot.data, 'base64')
+    result = screenshot.data
+    //result = new Buffer(screenshot.data, 'base64')
   } catch (error) {
     console.error(error)
   }
