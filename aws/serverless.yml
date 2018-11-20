@@ -1,0 +1,105 @@
+service: aws
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  region: us-east-1
+  environment:
+    # This will define an environment variable BUCKET with the name of the bucket created in the resources section
+    BUCKET: 
+      Ref: ScreenshotsBucket
+    PAGE_LOAD_TIMEOUT: 20000
+    LOGGING: true
+  # This describes the permissions common to all the lambdas
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:*"
+      Resource:
+          - "*"
+
+plugins:
+  - serverless-plugin-chrome
+  - serverless-webpack
+
+custom:
+  s3Bucket: aventrix-screenshot
+  chrome:
+    flags:
+      - --window-size=1280,1696 # Letter size
+      - --hide-scrollbars
+
+functions:
+  version-info:
+    description: Headless Chrome Serverless-framework version info example
+    memorySize: 1024
+    timeout: 30
+    handler: src/handlers/version.default
+    events:
+      - http:
+          path: version-info
+          method: get
+
+  screenshot:
+    description: Headless Chrome Serverless-framework screenshot example
+    memorySize: 1536
+    timeout: 30
+    handler: src/handlers/screenshot.default
+    events:
+      - http:
+          path: screenshot
+          method: get
+
+resources:
+  Resources:
+    ApiGatewayRestApi:
+      Properties:
+        BinaryMediaTypes:
+          - "*/*"
+
+    ScreenshotsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.s3Bucket}
+        AccessControl: PublicRead
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: error.html
+          RoutingRules:
+            - RoutingRuleCondition:
+                HttpErrorCodeReturnedEquals: "404"
+              RedirectRule:
+                Protocol: https
+                ReplaceKeyPrefixWith: "dev/screenshot?resource="
+                HttpRedirectCode: "307"
+                HostName:
+                  Fn::Join:
+                    - ""
+                    - - Ref: ApiGatewayRestApi
+                      - ".execute-api.us-east-1.amazonaws.com"
+    ## Specifying the policies to make sure all files inside the Bucket are avaialble to CloudFront
+    ScreenshotsBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: ScreenshotsBucket
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadGetObject
+              Effect: Allow
+              Principal: "*"
+              Action:
+              - s3:GetObject
+              Resource: arn:aws:s3:::${self:custom.s3Bucket}/*
+
+
+    # Enable X-Ray tracing on Lambda functions
+    # ScreenshotLambdaFunction:
+    #   Properties:
+    #     TracingConfig:
+    #       Mode: Active
+    # PdfLambdaFunction:
+    #   Properties:
+    #     TracingConfig:
+    #       Mode: Active
