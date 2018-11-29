@@ -1,7 +1,7 @@
 {
-  "name": "aws",
+  "name": "screenshot_svc",
   "private": true,
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "Screenshot service using the Serverless-framework",
   "main": "src/handlers.js",
   "engines": {
@@ -15,12 +15,10 @@
   "scripts": {
     "lint": "npm run lint:eslint -s",
     "lint:eslint": "eslint $npm_package_config_jsSrc",
-    "deploy": "serverless deploy -v",
-    "upgrade-dependencies": "yarn upgrade-interactive --latest --exact"
+    "deploy": "serverless deploy -v"
   },
   "dependencies": {
-    "chrome-remote-interface": "0.26.1",
-    "path": "^0.12.7"
+    "chrome-remote-interface": "0.25.3"
   },
   "devDependencies": {
     "babel-core": "6.26.0",
@@ -31,6 +29,7 @@
     "babel-preset-stage-3": "6.24.1",
     "babel-register": "6.26.0",
     "serverless": "1.33.2",
+    "serverless-offline": "^3.31.3",
     "serverless-plugin-chrome": "1.0.0-55",
     "serverless-webpack": "4.0.0",
     "webpack": "3.8.1"

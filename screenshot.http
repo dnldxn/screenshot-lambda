@@ -1,4 +1,5 @@
-@host = https://d1yv71ok6xxy0z.cloudfront.net/dev
+@host = https://d2tsojy8y35p4t.cloudfront.net/dev
+#@host = http://localhost:3000
 
 
 ### GET Chrome version

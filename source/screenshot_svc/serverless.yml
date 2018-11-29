@@ -6,25 +6,15 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    # This will define an environment variable BUCKET with the name of the bucket created in the resources section
-    # BUCKET: 
-    #   Ref: ScreenshotsBucket
     PAGE_LOAD_TIMEOUT: 20000
     LOGGING: true
-  # This describes the permissions common to all the lambdas
-  # iamRoleStatements:
-  #   - Effect: "Allow"
-  #     Action:
-  #       - "s3:*"
-  #     Resource:
-  #         - "*"
 
 plugins:
+  - serverless-offline
   - serverless-plugin-chrome
   - serverless-webpack
 
 custom:
-  s3Bucket: aventrix-screenshot
   chrome:
     flags:
       - --window-size=1280,1696 # Letter size
@@ -74,12 +64,14 @@ resources:
             DefaultTTL: 30
             ForwardedValues:
               QueryString: true
+              QueryStringCacheKeys:
+                - resource
           Origins:
-          - Id: ScreenshotLambdaOrigin
-            DomainName:
-              Fn::Join:
-                - ""
-                - - Ref: ApiGatewayRestApi
-                - ".execute-api.us-east-1.amazonaws.com"
-            CustomOriginConfig:
-              OriginProtocolPolicy: https-only
+            - Id: ScreenshotLambdaOrigin
+              DomainName:
+                Fn::Join:
+                  - ""
+                  - - Ref: ApiGatewayRestApi
+                    - ".execute-api.us-east-1.amazonaws.com"
+              CustomOriginConfig:
+                OriginProtocolPolicy: https-only
