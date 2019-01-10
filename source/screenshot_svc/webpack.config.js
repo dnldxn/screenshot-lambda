@@ -1,38 +1,25 @@
-const webpack = require('webpack')
-const slsw = require('serverless-webpack')
+const nodeExternals = require('webpack-node-externals');
+const slsw = require('serverless-webpack');
+const path = require('path');
 
 module.exports = {
-  devtool: 'source-map',
+  entry: slsw.lib.entries,
   target: 'node',
-  node: {
-    __dirname: true,
-  },
+  mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
+  externals: [nodeExternals()],
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        loader: 'babel-loader',
+        test: /\.js$/,
+        include: __dirname,
         exclude: /node_modules/,
-        options: {
-          cacheDirectory: true,
+        use: {
+          loader: 'babel-loader',
         },
       },
-      { test: /\.json$/, loader: 'json-loader' },
     ],
   },
   resolve: {
-    symlinks: true,
-  },
-  output: {
-    libraryTarget: 'commonjs',
-    path: `${__dirname}/.webpack`,
-    filename: '[name].js',
-  },
-  externals: ['aws-sdk'],
-  plugins: [
-    new webpack.optimize.LimitChunkCountPlugin({
-      maxChunks: 1,
-    }),
-  ],
-  entry: slsw.lib.entries,
-}
+    modules: [path.resolve(__dirname, 'src'), 'node_modules']
+  }
+};

@@ -1,5 +1,8 @@
-@host = https://d2tsojy8y35p4t.cloudfront.net/dev
-#@host = http://localhost:3000
+#@host = https://dpva659zgizmt.cloudfront.net/dev
+#@host = https://8tsv2zqthl.execute-api.us-east-1.amazonaws.com/dev
+
+#@host = http://d1gmq5xqc8h8zh.cloudfront.net/dev
+@host = https://vixg5hyebe.execute-api.us-east-1.amazonaws.com/dev
 
 
 ### GET Chrome version
@@ -11,7 +14,14 @@ GET {{host}}/screenshot?resource=M52Dd2mSHE1.png
 ### GET screenshot 2
 GET {{host}}/screenshot?resource=7lqbiwzn76F.png
 
-### GET image https://s3.us-east-1.amazonaws.com/aventrix-screenshot/M52Dd2mSHE1.png
-# https://aventrix-screenshot.s3-website-us-east-1.amazonaws.com/M52Dd2mSHE1.png
-# https://s3-us-east-1.amazonaws.com/aventrix-screenshot/M52Dd2mSHE1.png
-GET http://aventrix-screenshot.s3-website-us-east-1.amazonaws.com/M52Dd2mSHE1.png
+### GET screenshot 3
+GET {{host}}/screenshot?resource=YquEEqe2NjB.png
+
+### GET invalid request
+GET {{host}}/screenshot?resource=7lqbiwzn76e123
+
+### GET invalid user
+GET {{host}}/screenshot?resource=7lqbiwzn76e.png
+
+### GET invalid user from source
+GET https://www.aventrix.com/users/7lqbiwzn76a/infographic

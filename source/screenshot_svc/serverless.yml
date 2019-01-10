@@ -1,41 +1,43 @@
-service: aws
+service: screenshot-svc
 
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs8.10
   stage: dev
   region: us-east-1
+  vpc:
+    securityGroupIds:
+      - sg-045761d1498832083
+    subnetIds:
+      - subnet-03cd68fc7d51049e1
+      - subnet-083562b0a8cb4a5ff
   environment:
-    PAGE_LOAD_TIMEOUT: 20000
-    LOGGING: true
+    PAGE_LOAD_TIMEOUT: 20000  # time in miliseconds to load the Charts page
 
 plugins:
-  - serverless-offline
   - serverless-plugin-chrome
   - serverless-webpack
 
 custom:
-  chrome:
-    flags:
-      - --window-size=1280,1696 # Letter size
-      - --hide-scrollbars
+  webpack:
+    includeModules: true # enable auto-packing of external modules
 
 functions:
   version-info:
-    description: Headless Chrome Serverless-framework version info example
+    description: Headless Chrome Serverless-framework version info function
     memorySize: 1024
     timeout: 30
-    handler: src/handlers/version.default
+    handler: src/version.default
     events:
       - http:
           path: version-info
           method: get
 
   screenshot:
-    description: Headless Chrome Serverless-framework screenshot example
+    description: Headless Chrome Serverless-framework screenshot function
     memorySize: 1536
     timeout: 30
-    handler: src/handlers/screenshot.default
+    handler: src/screenshot.default
     events:
       - http:
           path: screenshot
@@ -48,30 +50,43 @@ resources:
         BinaryMediaTypes:
           - "*/*"
 
-    CloudFrontDistribution:
-      Type: AWS::CloudFront::Distribution
-      Properties:
-        DistributionConfig:
-          Comment: Screenshot CloudFront Distribution
-          Enabled: true
-          PriceClass: PriceClass_100
-          DefaultCacheBehavior:
-            AllowedMethods:
-            - HEAD
-            - GET
-            TargetOriginId: ScreenshotLambdaOrigin
-            ViewerProtocolPolicy: 'redirect-to-https'
-            DefaultTTL: 30
-            ForwardedValues:
-              QueryString: true
-              QueryStringCacheKeys:
-                - resource
-          Origins:
-            - Id: ScreenshotLambdaOrigin
-              DomainName:
-                Fn::Join:
-                  - ""
-                  - - Ref: ApiGatewayRestApi
-                    - ".execute-api.us-east-1.amazonaws.com"
-              CustomOriginConfig:
-                OriginProtocolPolicy: https-only
+    # CloudFrontDistribution:
+    #   Type: AWS::CloudFront::Distribution
+    #   Properties:
+    #     DistributionConfig:
+    #       Comment: Screenshot CloudFront Distribution
+    #       Enabled: true
+    #       PriceClass: PriceClass_100
+    #       DefaultCacheBehavior:
+    #         AllowedMethods:
+    #         - HEAD
+    #         - GET
+    #         TargetOriginId: ScreenshotLambdaOrigin
+    #         ViewerProtocolPolicy: 'redirect-to-https'
+    #         DefaultTTL: 30
+    #         ForwardedValues:
+    #           QueryString: true
+    #           QueryStringCacheKeys:
+    #             - resource
+    #       Origins:
+    #         - Id: ScreenshotLambdaOrigin
+    #           DomainName:
+    #             Fn::Join:
+    #               - ""
+    #               - - Ref: ApiGatewayRestApi
+    #                 - ".execute-api.us-east-1.amazonaws.com"
+    #           CustomOriginConfig:
+    #             OriginProtocolPolicy: https-only
+
+    # LambdaSecurityGroup: 
+    #   Type: AWS::EC2::SecurityGroup 
+    #   Properties: 
+    #     GroupDescription: StealthMonitorSecurityGroup 
+    #     SecurityGroupEgress: 
+    #       - IpProtocol: 
+    #         -1 
+    #         CidrIp: 0.0.0.0/0 
+    #     SecurityGroupIngress: 
+    #       - IpProtocol: -1 
+    #         CidrIp: 0.0.0.0/0 
+    #     VpcId: ${VpcId}

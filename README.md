@@ -3,7 +3,7 @@
 
 - ddos protection
 - cloudformation + lambda
-- return error code if user does not exist
+- return error code if user does not exist (404)
 - url param validation and injection protection
 
 # How to Run
@@ -27,11 +27,15 @@ npm install -g serverless
 cd source/screenshot_svc
 
 # deploy locally for development (offline)
-serverless offline start
+sls offline start
 
 # deploy entire package to AWS
-serverless deploy -v
+sls deploy -v
 
 # remove the Lambda functions from AWS
-serverless remove
+sls remove
 ```
+
+# Network Config
+
+Lambda functions can exist inside a subnet.

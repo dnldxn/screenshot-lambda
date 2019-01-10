@@ -1,23 +1,22 @@
-import log from '../utils/log'
-import version from '../chrome/version'
+const CDP = require('chrome-remote-interface');
 
 export default async function handler (event, context, callback) {
-  let responseBody
+  let responseBody;
 
-  log('Getting version info.')
+  console.log('Getting version info.');
 
   try {
-    responseBody = await version()
+    responseBody = await CDP.Version();
   } catch (error) {
     console.error('Error getting version info')
-    return callback(error)
+    return callback(error);
   }
 
-  return callback(null, {
+  return {
     statusCode: 200,
     body: JSON.stringify(responseBody),
     headers: {
       'Content-Type': 'application/json',
     },
-  })
-}
+  };
+};
