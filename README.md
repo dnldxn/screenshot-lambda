@@ -1,19 +1,10 @@
 
-# ToDo
-
-- ddos protection
-- cloudformation + lambda
-- return error code if user does not exist (404)
-- url param validation and injection protection
-
 # How to Run
 
 First run the CloudFormation script.
 
 ```bash
 cd aws/cloudformation-templates
-
-
 ```
 
 Based on:
@@ -27,15 +18,17 @@ npm install -g serverless
 cd source/screenshot_svc
 
 # deploy locally for development (offline)
-sls offline start
+serverless offline start
 
 # deploy entire package to AWS
-sls deploy -v
+serverless deploy -s dev -v
 
 # remove the Lambda functions from AWS
-sls remove
+serverless remove
 ```
 
 # Network Config
 
-Lambda functions can exist inside a subnet.
+Lambda functions can exist inside a subnet, and can apply SecurityGroup to them.
+
+How to protect the ApiGateway endpoint?
